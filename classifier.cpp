@@ -29,7 +29,7 @@ class Classifier {
 
         
         double log_prior(string label) const {
-            double lnpc = log(static_cast<double>(posts_with_label.at(label) / num_posts));
+            double lnpc = log(static_cast<double>(posts_with_label.at(label)) / num_posts);
             return lnpc;
         }
 
