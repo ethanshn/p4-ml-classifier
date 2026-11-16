@@ -8,12 +8,51 @@
 using namespace std;
 
 class Classifier {
+    private:
+    int num_posts;
+    set<string> unique_words;
+    map<string, int> posts_with_word;
+    map<string, int> posts_with_label;
+    map<pair <string, string>, int> posts_with_word_and_label;
+    
+    
+    // EFFECTS: Return a set of unique whitespace delimited words
+    set<string> unique_words(const string &str) {
+        istringstream source(str);
+        set<string> words;
+        string word;
+        while (source >> word) {
+                words.insert(word);
+        }
+        return words;
+    }
+
+        
+        double log_prior(string label) {
+            double lnpc = log(static_cast<double>(posts_with_label[label]) / num_posts);
+            return lnpc;
+        }
+
+        double log_likelihood(string label, string word) {
+            double lnpwc;
+            if (posts_with_word_and_label.find({label, word}) != posts_with_word_and_label.end()) {
+                lnpwc = log(static_cast<double>(posts_with_word_and_label[{label, word}]) / posts_with_label[label]);
+            }
+
+            else if (posts_with_word.find(word) != posts_with_word.end()) {
+                lnpwc = log(static_cast<double>(posts_with_word.at(word)) / num_posts);
+            }
+
+            else {
+                lnpwc = log(1.0 / num_posts);
+            }
+    } 
     public:
         // MODIFIES: this
         // EFFECTS: updates all the counts for the training system in one labeled post function
         void train(const string &label, const string &content) {
             ++num_posts;
-            ++label_count[label];
+            ++posts_with_label[label];
 
             vector<string> words;
             istringstream source(content);
@@ -36,8 +75,8 @@ class Classifier {
             }
 
             for (size_t i = 0; i < seen.size(); i++) {
-                ++word_count[seen[i]];
-                ++label_word_count[label][seen[i]];
+                ++posts_with_word[seen[i]];
+                ++posts_with_label[label][seen[i]];
             }
         }
         // EFFECTS: returns the number of posts trained on
@@ -47,7 +86,7 @@ class Classifier {
 
         // EFFECTS: returns the number of unique words in the training data
         int get_vocab_size() const {
-            return static_cast<int>(word_count.size())
+            return static_cast<int>(posts_with_word.size())
         }
 
         // REQUIRES: the classifer must have already been trained on atleast once
@@ -83,7 +122,7 @@ class Classifier {
             vector<double> scores;
             for (const auto &entry:label_count) {
                 labels.push_back(entry.first);
-                scores.push_back(log_score(entry.first, words));
+                scores.push_back(log_likelihood(entry.first, words));
             }
 
             size_t best = labels.size();
@@ -152,45 +191,7 @@ class Classifier {
             }
         }
 
-    private:
-    int num_posts;
-    set<string> unique_words;
-    map<string, int> posts_with_word;
-    map<string, int> posts_with_label;
-    map<pair <string, string>, int> posts_with_word_and_label;
     
-    
-    // EFFECTS: Return a set of unique whitespace delimited words
-    set<string> unique_words(const string &str) {
-        istringstream source(str);
-        set<string> words;
-        string word;
-        while (source >> word) {
-                words.insert(word);
-        }
-        return words;
-    }
-
-        
-        double log_prior(string label) {
-            double lnpc = log(static_cast<double>(posts_with_label[label]) / num_posts);
-            return lnpc;
-        }
-
-        double log_likelihood(string label, string word) {
-            double lnpwc;
-            if (posts_with_word_and_label.find({label, word}) != posts_with_word_and_label.end()) {
-                lnpwc = log(static_cast<double>(posts_with_word_and_label[{label, word}]) / posts_with_label[label]);
-            }
-
-            else if (posts_with_word.find(word) != posts_with_word.end()) {
-                lnpwc = log(static_cast<double>(posts_with_word.at(word)) / num_posts);
-            }
-
-            else {
-                lnpwc = log(1.0 / num_posts);
-            }
-    } 
 };
 
 // MODIFIES: classifer, cout
@@ -239,6 +240,8 @@ int main(int argc, char *argv[]) {
             return 1;
         }
     }
+
+
 
 
 }
