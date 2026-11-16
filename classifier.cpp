@@ -1,21 +1,27 @@
 #include <iostream>
 #include <fstream>
+#include <set>
+#include <map>
 using namespace std;
 
 class Classifier {
     public:
     private:
     int num_posts;
-    int unique_words;
-    int num_posts_with_words;
-    int num_posts_with_label;
-    int num_posts_with_words_and_label;
-}
+    set<string> unique_words;
+    map<string, int> posts_with_word;
+    map<string, int> posts_with_label;
+    map<string, int> posts_with_word_and_label;
+
+    set<string> unique_words_helper_function(const string &str)
+    
+};
 
 
 
 
 int main(int argc, char *argv[]) {
+    cout.precision(3);
     if (argc != 2 && argc != 3) {
         cout << "Usage: classifier.exe TRAIN_FILE [TEST_FILE]" << endl;
         return 1;
