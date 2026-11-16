@@ -204,6 +204,52 @@ void train_from_file(const string & filename, Classifier & classifier, bool prin
     }
 }
 
+void test_from_file(const string &filename, const Classifier &classifier) {
+    csvstream csvin(filename);
+    map<string, string> row;
+
+    vector<map<string, string>> rows;
+    while (csvin >> row) {
+        rows.push_back(row);
+    }
+
+    int correct = 0;
+    int total = 0;
+    cout << "test data: " << endl;
+    for (size_t i = 0; i < rows.size(); i++) {
+        const string label = rows[i]["tag"];
+        const string content = rows[i]["content"];
+        double score = 0;
+        const string predicted = classifier.predict(content, score);
+        cout << " correct = " << label << ", predicted = " << predicted << ", log-probability score = "
+        << score << endl;
+        cout << " content = " << content << endl << endl;
+        total++;
+        if (predicted == label) {
+            correct++;
+        }
+    }
+    cout << "performance: " << correct << " / " << total << " posts predicted correctly" << endl;
+}
+
+// MODIFIES: cout
+// EFFECTS: runs training and also testing if asked. Throws a csvstream_exception if the file won't open
+void run(const string &train_file, const string *test_file) {
+    const bool train_only = (test_file == nullptr);
+    const string train_name = train_file;
+    Classifier classifier;
+    train_from_file(train_name, classifier, train_only);
+    cout << "trained on " << classifier.get_num_posts() << " examples" << endl;
+    if (train_only) {
+        classifier.print_classes();
+        classifier.print_parameters();
+        cout << endl;
+    } else {
+        const string test_name = *test_file;
+        test_from_file(test_name, classifier);
+    }
+}
+
 
 int main(int argc, char *argv[]) {
     cout.precision(3);
@@ -226,6 +272,4 @@ int main(int argc, char *argv[]) {
             return 1;
         }
     }
-
-
 }
