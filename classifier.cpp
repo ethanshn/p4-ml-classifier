@@ -28,15 +28,15 @@ class Classifier {
     }
 
         
-        double const log_prior(string label) {
-            double lnpc = log(static_cast<double>(posts_with_label[label]) / num_posts);
+        double log_prior(string label) const {
+            double lnpc = log(static_cast<double>(posts_with_label.at(label) / num_posts));
             return lnpc;
         }
 
-        double const log_likelihood(string label, string word) {
+        double log_likelihood(string label, string word) const {
             double lnpwc;
             if (posts_with_word_and_label.find({label, word}) != posts_with_word_and_label.end()) {
-                lnpwc = log(static_cast<double>(posts_with_word_and_label[{label, word}]) / posts_with_label[label]);
+                lnpwc = log(static_cast<double>(posts_with_word_and_label.at({label, word})) / posts_with_label.at(label));
             }
 
             else if (posts_with_word.find(word) != posts_with_word.end()) {
@@ -137,6 +137,7 @@ void train_from_file(const string & filename, Classifier & classifier, bool prin
     csvstream csvin(filename);
     map<string, string> row;
 
+    vector<map<string, string>> rows;
     while (csvin >> row) {
         rows.push_back(row);
     }
