@@ -2,7 +2,10 @@
 #include <fstream>
 using namespace std;
 
-
+class Classifier {
+    public:
+    private:
+}
 
 
 
