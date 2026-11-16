@@ -49,7 +49,7 @@ class Classifier {
     } 
     public:
     // M: this
-    // E: updates all the counts for the training system in one labeled post function
+    // E: updates all the counts for the training system
         void train(const string &label, const string &content) {
             ++num_posts;
             ++posts_with_label[label];
@@ -61,48 +61,25 @@ class Classifier {
                 ++posts_with_word_and_label[make_pair(label, w)];
             }
         }
-        // E: returns the number of posts trained on
+        // E: returns the number of posts trained
         int get_num_posts() const {
             return num_posts;
         }
 
-        // E: returns the number of unique words in the training data
+        // E: returns the number of unique words
         int get_vocab_size() const {
             return static_cast<int>(posts_with_word.size());
         }
 
-        // R: the classifer must have already been trained on atleast once
+        // R: the classifer already trained on atleast once
         // E: returns the label with the highest probability score from the logs for the content
         // with any ties going to the first alphabetical label and stores that score in score.
         string predict (const string &content, double &score) const {
-            vector<string> all_words;
-            istringstream source(content);
-            string word;
-            while (source >> word) {
-                all_words.push_back(word);
-            }
-
-            vector<string> seen;
-            for (size_t i = 0; i < all_words.size(); i++) {
-                bool duplicate = false;
-                for (size_t j = 0; j < seen.size(); j++) {
-                    if (seen[j] == all_words[i]) {
-                        duplicate = true;
-                    }
-                }
-                if (!duplicate) {
-                    seen.push_back(all_words[i]);
-                }
-            }
-
-            set<string> words;
-            for (size_t i = 0; i < seen.size(); i++) {
-                words.insert(seen[i]);
-            }
+            set<string> words = unique_words(content);
 
             vector<string> labels;
             vector<double> scores;
-            for (const auto &entry:label_count) {
+            for (const auto &entry : posts_with_label) {
                 labels.push_back(entry.first);
                 scores.push_back(log_likelihood(entry.first, words));
             }
@@ -132,16 +109,16 @@ class Classifier {
             cout << "classes: " << endl;
             string last;
             bool printed_any = false;
-            for (size_t round = 0; round < label_count.size(); round++) {
+            for (size_t round = 0; round < posts_with_label.size(); round++) {
                 string next;
                 bool found = false;
-                for (const auto &entry : label_count) {
+                for (const auto &entry : posts_with_label) {
                     if ((!printed_any || last < entry.first) && ((!printed_any || last < entry.first) && (!found || entry.first < next))) {
                         next = entry.first;
                         found = true;
                     }
                 }
-                cout << " " << next << ", " << label_count.at(next)
+                cout << " " << next << ", " << posts_with_label[next]
                     << " examples, log-prior = " << log_prior(next) << endl;
                 last = next;
                 printed_any = true;
