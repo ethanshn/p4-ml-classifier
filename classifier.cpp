@@ -15,7 +15,7 @@ class Classifier {
     map<pair <string, string>, int> posts_with_word_and_label;
     
     
-    // EFFECTS: Return a set of unique whitespace delimited words
+    // E: Return a set of unique whitespace delimited words
     set<string> unique_words(const string &str) {
         istringstream source(str);
         set<string> words;
