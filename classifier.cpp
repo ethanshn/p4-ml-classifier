@@ -29,14 +29,14 @@ class Classifier {
 
         
         double log_prior(string label) const {
-            double lnpc = log(static_cast<double>(posts_with_label.at(label) / num_posts))git;
+            double lnpc = log(static_cast<double>(posts_with_label.at(label) / num_posts));
             return lnpc;
         }
 
         double log_likelihood(string label, string word) const {
             double lnpwc;
             if (posts_with_word_and_label.find({label, word}) != posts_with_word_and_label.end()) {
-                lnpwc = log(static_cast<double>(posts_with_word_and_label[{label, word}]) / posts_with_label[label]);
+                lnpwc = log(static_cast<double>(posts_with_word_and_label.at({label, word})) / posts_with_label.at(label));
             }
 
             else if (posts_with_word.find(word) != posts_with_word.end()) {
