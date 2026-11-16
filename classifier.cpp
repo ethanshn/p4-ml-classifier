@@ -2,18 +2,10 @@
 #include <fstream>
 #include <set>
 #include <map>
+#include <sstream>
+#include <vector>
+#include <cmath>
 using namespace std;
-
-// EFFECTS: returns a set of unique words with no blank whitespaces before or after
-set<string> unique_words(const string &str) {
-    istringstream source(str);
-    set<string> words;
-    string word;
-    while (source >> word) {
-        words.insert(word);
-    }
-    return words;
-}
 
 class Classifier {
     public:
@@ -165,10 +157,27 @@ class Classifier {
     set<string> unique_words;
     map<string, int> posts_with_word;
     map<string, int> posts_with_label;
-    map<string, int> posts_with_word_and_label;
+    map<pair <string, string>, int> posts_with_word_and_label;
+    // EFFECTS: returns a set of unique words with no blank whitespaces before or after
+    set<string> unique_words(const string &str) {
+        istringstream source(str);
+        set<string> words;
+        string word;
+        while (source >> word) {
+            words.insert(word);
+        }
+        return words;
+        
+        double log_prior(string label) {
+            double lnpc = log(posts_with_label[label] / num_posts);
+            return lnpc;
+        }
 
-    set<string> unique_words_helper_function(const string &str)
-    
+        double log_likelihood(string label, string word) {
+            double lnpwc = log(posts_with_word_and_label[label, word] / num_posts);
+            return lnpwc;
+        }
+    } 
 };
 
 // MODIFIES: classifer, cout
