@@ -158,25 +158,38 @@ class Classifier {
     map<string, int> posts_with_word;
     map<string, int> posts_with_label;
     map<pair <string, string>, int> posts_with_word_and_label;
-    // EFFECTS: returns a set of unique words with no blank whitespaces before or after
+    
+    
+    // EFFECTS: Return a set of unique whitespace delimited words
     set<string> unique_words(const string &str) {
         istringstream source(str);
         set<string> words;
         string word;
         while (source >> word) {
-            words.insert(word);
+                words.insert(word);
         }
         return words;
+    }
+
         
         double log_prior(string label) {
-            double lnpc = log(posts_with_label[label] / num_posts);
+            double lnpc = log(static_cast<double>(posts_with_label.at(label)) / num_posts);
             return lnpc;
         }
 
         double log_likelihood(string label, string word) {
-            double lnpwc = log(posts_with_word_and_label[label, word] / num_posts);
-            return lnpwc;
-        }
+            double lnpwc;
+            if (posts_with_word_and_label.find({label, word}) != posts_with_word_and_label.end()) {
+                lnpwc = log(static_cast<double>(posts_with_word_and_label[{label, word}]) / posts_with_label[label]);
+            }
+
+            else if (posts_with_word.find(word) != posts_with_word.end()) {
+                lnpwc = log(static_cast<double>(posts_with_word.at(word)) / num_posts);
+            }
+
+            else {
+                lnpwc = log(1.0 / num_posts);
+            }
     } 
 };
 
