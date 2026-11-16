@@ -171,7 +171,29 @@ class Classifier {
     
 };
 
+// MODIFIES: classifer, cout
+// EFFECTS: trains the classifier on every post in the csv file. If print_posts is true, prints each of the training posts used
+void train_from_file(const string & filename, Classifier & classifier, bool print_posts) {
+    csvstream csvin(filename);
+    map<string, string> row;
 
+    while (csvin >> row) {
+        rows.push_back(row);
+    }
+
+    if (print_posts) {
+        cout << "training data:" << endl;
+    }
+    for (size_t i = 0; i < rows.size(); i++) {
+        const string label = rows[i]["tag"];
+        const string content = rows[i]["content"];
+        if (print_posts) {
+            cout << " label =" << " " << label
+            << ", content =" << " " << content << endl;
+        }
+        classifier.train(label,content);
+    }
+}
 
 
 int main(int argc, char *argv[]) {
