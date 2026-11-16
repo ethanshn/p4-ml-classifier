@@ -6,6 +6,7 @@
 #include <vector>
 #include <cmath>
 using namespace std;
+#include "csvstream.hpp"
 
 class Classifier {
     private:
@@ -131,7 +132,7 @@ class Classifier {
 };
 
 // M: classifer, cout
-// E: trains the classifier on every post in the csv file. If print_posts is true, prints each of the training posts used
+// E: trains the classifier on every post in the csv file
 void train_from_file(const string & filename, Classifier & classifier, bool print_posts) {
     csvstream csvin(filename);
     map<string, string> row;
@@ -208,18 +209,5 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    ifstream fin(argv[1]);
-    if (!fin.is_open()) {
-        cout << "Error opening file: " << argv[1] << endl;
-        return 1;
-    }
-
-    ifstream fin2;
-    if (argc == 3) {
-        fin2.open(argv[2]);
-        if (!fin2.is_open()) {
-            cout << "Error opening file: " << argv[2] << endl;
-            return 1;
-        }
-    }
+    
 }
