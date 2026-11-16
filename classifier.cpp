@@ -208,4 +208,16 @@ int main(int argc, char *argv[]) {
         cout << "Usage: classifier.exe TRAIN_FILE [TEST_FILE]" << endl;
         return 1;
     }
+
+    string filename = argv[1];
+    try {
+    csvstream csvin(filename);
+    map<string, string> row;
+    while (csvin >> row) {
+      cout << row["animal"] << "\n";
+    }
+  } catch(const csvstream_exception &e) {
+    cerr << e.what() << "\n";
+    return 1;
+  }
 }
