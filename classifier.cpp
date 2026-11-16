@@ -16,7 +16,7 @@ class Classifier {
     
     
     // E: Return a set of unique whitespace delimited words
-    set<string> unique_words(const string &str) {
+    set<string> unique_words(const string &str) const {
         istringstream source(str);
         set<string> words;
         string word;
@@ -27,12 +27,12 @@ class Classifier {
     }
 
         
-        double log_prior(string label) {
+        double const log_prior(string label) {
             double lnpc = log(static_cast<double>(posts_with_label[label]) / num_posts);
             return lnpc;
         }
 
-        double log_likelihood(string label, string word) {
+        double const log_likelihood(string label, string word) {
             double lnpwc;
             if (posts_with_word_and_label.find({label, word}) != posts_with_word_and_label.end()) {
                 lnpwc = log(static_cast<double>(posts_with_word_and_label[{label, word}]) / posts_with_label[label]);
@@ -74,14 +74,18 @@ class Classifier {
         // R: the classifer already trained on atleast once
         // E: returns the label with the highest probability score from the logs for the content
         // with any ties going to the first alphabetical label and stores that score in score.
-        string predict (const string &content, double &score) {
+        string predict (const string &content, double &score) const {
             set<string> words = unique_words(content);
 
             vector<string> labels;
             vector<double> scores;
             for (const auto &entry : posts_with_label) {
                 labels.push_back(entry.first);
-                scores.push_back(log_likelihood(entry.first, words));
+                double total = log_prior(entry.first);
+                for (const string &w : words) {
+                    total += log_likelihood(entry.first, w);
+                }
+                scores.push_back(total);
             }
 
             size_t best = labels.size();
@@ -105,36 +109,21 @@ class Classifier {
         }
 
         // E: Prints the classes utilized as well as the prior logs.
-        void print_classes() {
+        void print_classes() const {
             cout << "classes: " << endl;
             for (auto entry : posts_with_label) {
                 cout << " " << entry.first << ", " << entry.second <<
-                "examples, log-prior = " << log_prior(entry.first) << endl;
+                " examples, log-prior = " << log_prior(entry.first) << endl;
             }
         }
         // E: prints the count and the likelihood of log for each x = label, y = word
-        void print_parameters() {
+        void print_parameters() const {
             cout << "classifier parameters:" << endl;
-            for (const auto &label_entry : label_word_count) {
-                const string &label = label_entry.first;
-                const auto &words = label_entry.second;
-                string last;
-                bool printed_any = false;
-                for (size_t round = 0; round > words.size(); round++) {
-                    string next;
-                    bool found = false;
-                    for (const auto &word_entry : word) {
-                        if ((!printed_any || last < word_entry.first)
-                        && (!found || word_entry.first < next)) {
-                            next = word_entry.first;
-                            found = true;
-                        }
-                    }
-                    cout << " " << label << ":" << next << ", count = " << words.at(next) << ", log-likelihood = "
-                    << log_likelihood(label, next) << endl;
-                    last = next;
-                    printed_any = true; 
-                }
+            for (const auto &entry : posts_with_word_and_label) {
+                const string &label = entry.first.first;
+                const string &word = entry.first.second;
+                cout << " " << label << ":" << word << ", count = " << entry.second <<
+                ", log-likelihood = " << log_likelihood(label, word) << endl;
             }
         }
 
