@@ -48,49 +48,31 @@ class Classifier {
             return lnpwc;
     } 
     public:
-    // MODIFIES: this
-        // EFFECTS: updates all the counts for the training system in one labeled post function
+    // M: this
+    // E: updates all the counts for the training system in one labeled post function
         void train(const string &label, const string &content) {
             ++num_posts;
             ++posts_with_label[label];
 
-            vector<string> words;
-            istringstream source(content);
-            string word;
-            while (source >> word) {
-                words.push_back(word);
-            }
+            set<string> words = unique_words(content);
 
-            vector<string> seen;
-            for (size_t i = 0; i < words.size(); i++) {
-                bool duplicate = false;
-                for (size_t j = 0; j < seen.size(); j++) {
-                    if (seen[j] == words[i]) {
-                        duplicate = true;
-                    }
-                }
-                if (!duplicate) {
-                    seen.push_back(words[i]);
-                }
-            }
-
-            for (size_t i = 0; i < seen.size(); i++) {
-                ++posts_with_word[seen[i]];
-                ++posts_with_label[label][seen[i]];
+            for (string w : words) {
+                ++posts_with_word[w];
+                ++posts_with_word_and_label[make_pair(label, w)];
             }
         }
-        // EFFECTS: returns the number of posts trained on
+        // E: returns the number of posts trained on
         int get_num_posts() const {
             return num_posts;
         }
 
-        // EFFECTS: returns the number of unique words in the training data
+        // E: returns the number of unique words in the training data
         int get_vocab_size() const {
             return static_cast<int>(posts_with_word.size());
         }
 
-        // REQUIRES: the classifer must have already been trained on atleast once
-        // EFFECTS: returns the label with the highest probability score from the logs for the content
+        // R: the classifer must have already been trained on atleast once
+        // E: returns the label with the highest probability score from the logs for the content
         // with any ties going to the first alphabetical label and stores that score in score.
         string predict (const string &content, double &score) const {
             vector<string> all_words;
@@ -145,7 +127,7 @@ class Classifier {
             return labels[best];
         }
 
-        // EFFECTS: Prints the classes utilized as well as the prior logs.
+        // E: Prints the classes utilized as well as the prior logs.
         void print_classes() const {
             cout << "classes: " << endl;
             string last;
@@ -165,7 +147,7 @@ class Classifier {
                 printed_any = true;
             }
         }
-        // EFFECTS: prints the count and the likelihood of log for each x = label, y = word
+        // E: prints the count and the likelihood of log for each x = label, y = word
         void print_parameters() const {
             cout << "classifier parameters:" << endl;
             for (const auto &label_entry : label_word_count) {
@@ -194,8 +176,8 @@ class Classifier {
     
 };
 
-// MODIFIES: classifer, cout
-// EFFECTS: trains the classifier on every post in the csv file. If print_posts is true, prints each of the training posts used
+// M: classifer, cout
+// E: trains the classifier on every post in the csv file. If print_posts is true, prints each of the training posts used
 void train_from_file(const string & filename, Classifier & classifier, bool print_posts) {
     csvstream csvin(filename);
     map<string, string> row;
@@ -246,8 +228,8 @@ void test_from_file(const string &filename, const Classifier &classifier) {
     cout << "performance: " << correct << " / " << total << " posts predicted correctly" << endl;
 }
 
-// MODIFIES: cout
-// EFFECTS: runs training and also testing if asked. Throws a csvstream_exception if the file won't open
+// M: cout
+// E: runs training and also testing if asked. Throws a csvstream_exception if the file won't open
 void run(const string &train_file, const string *test_file) {
     const bool train_only = (test_file == nullptr);
     const string train_name = train_file;
