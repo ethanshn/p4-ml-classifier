@@ -74,7 +74,7 @@ class Classifier {
         // R: the classifer already trained on atleast once
         // E: returns the label with the highest probability score from the logs for the content
         // with any ties going to the first alphabetical label and stores that score in score.
-        string predict (const string &content, double &score) const {
+        string predict (const string &content, double &score) {
             set<string> words = unique_words(content);
 
             vector<string> labels;
@@ -105,27 +105,15 @@ class Classifier {
         }
 
         // E: Prints the classes utilized as well as the prior logs.
-        void print_classes() const {
+        void print_classes() {
             cout << "classes: " << endl;
-            string last;
-            bool printed_any = false;
-            for (size_t round = 0; round < posts_with_label.size(); round++) {
-                string next;
-                bool found = false;
-                for (const auto &entry : posts_with_label) {
-                    if ((!printed_any || last < entry.first) && ((!printed_any || last < entry.first) && (!found || entry.first < next))) {
-                        next = entry.first;
-                        found = true;
-                    }
-                }
-                cout << " " << next << ", " << posts_with_label[next]
-                    << " examples, log-prior = " << log_prior(next) << endl;
-                last = next;
-                printed_any = true;
+            for (auto entry : posts_with_label) {
+                cout << " " << entry.first << ", " << entry.second <<
+                "examples, log-prior = " << log_prior(entry.first) << endl;
             }
         }
         // E: prints the count and the likelihood of log for each x = label, y = word
-        void print_parameters() const {
+        void print_parameters() {
             cout << "classifier parameters:" << endl;
             for (const auto &label_entry : label_word_count) {
                 const string &label = label_entry.first;
