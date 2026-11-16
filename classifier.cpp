@@ -193,6 +193,10 @@ void run(const string &train_file, const string *test_file) {
     train_from_file(train_name, classifier, train_only);
     cout << "trained on " << classifier.get_num_posts() << " examples" << endl;
     if (train_only) {
+        cout << "vocabulary size = " << classifier.get_vocab_size() << endl;
+    }
+    cout << endl;
+    if (train_only) {
         classifier.print_classes();
         classifier.print_parameters();
         cout << endl;
@@ -209,4 +213,21 @@ int main(int argc, char *argv[]) {
         cout << "Usage: classifier.exe TRAIN_FILE [TEST_FILE]" << endl;
         return 1;
     }
+
+    const string train_file = argv[1];
+
+    try {
+        if (argc == 2) {
+            run(train_file, nullptr);
+        } 
+        else {
+            string test_file = argv[2];
+            run(train_file, &test_file);
+        }
+    }
+    catch (const csvstream_exception &e) {
+        cout << e.what() << endl;
+        return 1;
+    }
+    return 0;
 }
