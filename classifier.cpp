@@ -208,6 +208,4 @@ int main(int argc, char *argv[]) {
         cout << "Usage: classifier.exe TRAIN_FILE [TEST_FILE]" << endl;
         return 1;
     }
-
-    
 }
