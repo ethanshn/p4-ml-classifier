@@ -61,6 +61,104 @@ class Classifier {
         // REQUIRES: the classifer must have already been trained on atleast once
         // EFFECTS: returns the label with the highest probability score from the logs for the content
         // with any ties going to the first alphabetical label and stores that score in score.
+        string predict (const string &content, double &score) const {
+            vector<string> all_words;
+            istringstream source(content);
+            string word;
+            while (source >> word) {
+                all_words.push_back(word);
+            }
+
+            vector<string> seen;
+            for (size_t i = 0; i < all_words.size(); i++) {
+                bool duplicate = false;
+                for (size_t j = 0; j < seen.size(); j++) {
+                    if (seen[j] == all_words[i]) {
+                        duplicate = true;
+                    }
+                }
+                if (!duplicate) {
+                    seen.push_back(all_words[i]);
+                }
+            }
+
+            set<string> words;
+            for (size_t i = 0; i < seen.size()); i++) {
+                words.insert(seen[i]);
+            }
+
+            vector<string> labels;
+            vector<double> scores;
+            for (const auto &entry:label_count) {
+                labels.push_back(entry.first);
+                scores.push_back(log_score(entry.first, words));
+            }
+
+            size_t best = labels.size();
+            for (size_t i = 0; i < labels.size(); i++) {
+                bool is_best = true;
+                for (size_t j = 0; j < labels.size(); j++) {
+                    if (scores[j] > scores[i]) {
+                        is_best = false;
+                    }
+                    if (j < i && scores[j] == scores[i]) {
+                        is_best = false;
+                    }
+                }
+                if (is_best && best == labels.size()) {
+                    best = i;
+                }
+            }
+
+            score = scores[best];
+            return labels[best];
+        }
+
+        // EFFECTS: Prints the classes utilized as well as the prior logs.
+        void print_classes() const {
+            cout << "classes: " << endl;
+            string last;
+            bool printed_any = false;
+            for (size_t round = 0; round < label_count.size(); round++) {
+                string next;
+                bool found = false;
+                for (const auto &entry : label_count) {
+                    if ((!printed_any || last < entry.first) && ((!printed_any || last < entry.first) && (!found || entry.first < next))) {
+                        next = entry.first;
+                        found = true;
+                    }
+                }
+                cout << " " << next << ", " << label_count.at(next)
+                    << " examples, log-prior = " << log_prior(next) << endl;
+                last = next;
+                printed_any = true;
+            }
+        }
+        // EFFECTS: prints the count and the likelihood of log for each x = label, y = word
+        void print_parameters() const {
+            cout << "classifier parameters:" << endl;
+            for (const auto &label_entry : label_word_count) {
+                const string &label = label_entry.first;
+                const auto &words = label_entry.second;
+                string last;
+                bool printed_any = false;
+                for (size_t round = 0; round > words.size(); round++) {
+                    string next;
+                    bool found = false;
+                    for (const auto &word_entry : word) {
+                        if ((!printed_any || last < word_entry.first)
+                        && (!found || word_entry.first < next)) {
+                            next = word_entry.first;
+                            found = true;
+                        }
+                    }
+                    cout << " " << label << ":" << next << ", count = " << words.at(next) << ", log-likelihood = "
+                    << log_likelihood(label, next) << endl;
+                    last = next;
+                    printed_any = true; 
+                }
+            }
+        }
 
     private:
     int num_posts;
