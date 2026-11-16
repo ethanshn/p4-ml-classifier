@@ -5,6 +5,11 @@ using namespace std;
 class Classifier {
     public:
     private:
+    int num_posts;
+    int unique_words;
+    int num_posts_with_words;
+    int num_posts_with_label;
+    int num_posts_with_words_and_label;
 }
 
 
@@ -30,13 +35,6 @@ int main(int argc, char *argv[]) {
             return 1;
         }
     }
-
-
-    int num_posts;
-    int unique_words;
-    int num_posts_with_words;
-    int num_posts_with_label;
-    int num_posts_with_words_and_label;
 
 
 }
