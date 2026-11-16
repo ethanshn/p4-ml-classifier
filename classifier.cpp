@@ -9,8 +9,7 @@ using namespace std;
 
 class Classifier {
     private:
-    int num_posts;
-    set<string> unique_words;
+    int num_posts = 0;
     map<string, int> posts_with_word;
     map<string, int> posts_with_label;
     map<pair <string, string>, int> posts_with_word_and_label;
@@ -46,9 +45,10 @@ class Classifier {
             else {
                 lnpwc = log(1.0 / num_posts);
             }
+            return lnpwc;
     } 
     public:
-        // MODIFIES: this
+    // MODIFIES: this
         // EFFECTS: updates all the counts for the training system in one labeled post function
         void train(const string &label, const string &content) {
             ++num_posts;
@@ -86,7 +86,7 @@ class Classifier {
 
         // EFFECTS: returns the number of unique words in the training data
         int get_vocab_size() const {
-            return static_cast<int>(posts_with_word.size())
+            return static_cast<int>(posts_with_word.size());
         }
 
         // REQUIRES: the classifer must have already been trained on atleast once
@@ -114,7 +114,7 @@ class Classifier {
             }
 
             set<string> words;
-            for (size_t i = 0; i < seen.size()); i++) {
+            for (size_t i = 0; i < seen.size(); i++) {
                 words.insert(seen[i]);
             }
 
