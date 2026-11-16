@@ -89,10 +89,10 @@ class Classifier {
                 scores.push_back(total);
             }
 
-            size_t best = labels.size();
-            for (size_t i = 0; i < labels.size(); i++) {
+            int best = labels.size();
+            for (int i = 0; i < labels.size(); i++) {
                 bool is_best = true;
-                for (size_t j = 0; j < labels.size(); j++) {
+                for (int j = 0; j < labels.size(); j++) {
                     if (scores[j] > scores[i]) {
                         is_best = false;
                     }
@@ -145,7 +145,7 @@ void train_from_file(const string & filename, Classifier & classifier, bool prin
     if (print_posts) {
         cout << "training data:" << endl;
     }
-    for (size_t i = 0; i < rows.size(); i++) {
+    for (int i = 0; i < rows.size(); i++) {
         const string label = rows[i]["tag"];
         const string content = rows[i]["content"];
         if (print_posts) {
@@ -168,7 +168,7 @@ void test_from_file(const string &filename, const Classifier &classifier) {
     int correct = 0;
     int total = 0;
     cout << "test data: " << endl;
-    for (size_t i = 0; i < rows.size(); i++) {
+    for (int i = 0; i < rows.size(); i++) {
         const string label = rows[i]["tag"];
         const string content = rows[i]["content"];
         double score = 0;
@@ -213,12 +213,25 @@ int main(int argc, char *argv[]) {
     string filename = argv[1];
     try {
     csvstream csvin(filename);
-    map<string, string> row;
-    while (csvin >> row) {
-      cout << row["animal"] << "\n";
-    }
   } catch(const csvstream_exception &e) {
-    cerr << e.what() << "\n";
+    cout << "Error opening file: " << filename << endl;
     return 1;
   }
+
+    if (argc == 3) {
+        string filename2 = argv[2];
+        try {
+        csvstream csvin(filename2);
+    }catch(const csvstream_exception &e) {
+        cout << "Error opening file: " << filename2 << endl;
+        return 1;
+    }
+    run(filename, &filename2);
+  }
+
+  else {
+    run (filename, nullptr);
+  }
+
+return 0;
 }
