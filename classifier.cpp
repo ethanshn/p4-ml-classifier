@@ -27,6 +27,14 @@ class Classifier {
         return words;
     }
 
+        double log_score(string label, string content) const {
+            set<string> words = unique_words(content);
+            double score = log_prior(label);
+            for (string w : words) {
+                score += log_likelihood(label, w);
+            }
+            return score;
+        }
         
         double log_prior(string label) const {
             double lnpc = log(static_cast<double>(posts_with_label.at(label)) / num_posts);
@@ -137,48 +145,40 @@ class Classifier {
 void train_from_file(const string & filename, Classifier & classifier, bool print_posts) {
     csvstream csvin(filename);
     map<string, string> row;
-
-    vector<map<string, string>> rows;
-    while (csvin >> row) {
-        rows.push_back(row);
-    }
-
     if (print_posts) {
         cout << "training data:" << endl;
     }
-    for (int i = 0; i < rows.size(); i++) {
-        const string label = rows[i]["tag"];
-        const string content = rows[i]["content"];
-        if (print_posts) {
-            cout << " label =" << " " << label
-            << ", content =" << " " << content << endl;
-        }
-        classifier.train(label,content);
-    }
-}
-
-void test_from_file(const string &filename, const Classifier &classifier) {
-    csvstream csvin(filename);
-    map<string, string> row;
 
     vector<map<string, string>> rows;
     while (csvin >> row) {
         rows.push_back(row);
     }
 
+    for (int i = 0; i < rows.size(); i++) {
+        if (print_posts) {
+            cout << " label = " << rows[i]["tag"]
+            << ", content = " << rows[i]["content"] << endl;
+        }
+        classifier.train(rows[i]["tag"], rows[i]["content"]);
+    }
+}
+
+// M: cout
+// E: predicts the posts in the file and then prints the results of the prediction
+void test_from_file(const string &filename, const Classifier &classifier) {
+    csvstream csvin(filename);
+    map<string, string> row;
     int correct = 0;
     int total = 0;
     cout << "test data: " << endl;
-    for (int i = 0; i < rows.size(); i++) {
-        const string label = rows[i]["tag"];
-        const string content = rows[i]["content"];
+    while (csvin >> row) {
         double score = 0;
-        const string predicted = classifier.predict(content, score);
-        cout << " correct = " << label << ", predicted = " << predicted << ", log-probability score = "
+        string predicted = classifier.predict(row["content"], score);
+        cout << " correct = " << row["tag"] << ", predicted = " << predicted << ", log-probability score = "
         << score << endl;
-        cout << " content = " << content << endl << endl;
+        cout << " content = " << row["content"] << endl << endl;
         total++;
-        if (predicted == label) {
+        if (predicted == row["tag"]) {
             correct++;
         }
     }
@@ -210,7 +210,6 @@ void run(const string &train_file, const string *test_file) {
 
 int main(int argc, char *argv[]) {
     cout.precision(3);
-    // check if argument number is 2 or 3 including file name
     if (argc != 2 && argc != 3) {
         cout << "Usage: classifier.exe TRAIN_FILE [TEST_FILE]" << endl;
         return 1;
@@ -225,7 +224,6 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-    //check second file opens or not if there is one
     if (argc == 3) {
         string filename2 = argv[2];
         try {
@@ -238,7 +236,6 @@ int main(int argc, char *argv[]) {
   }
 
   else {
-    //run with only one file
     run (filename, nullptr);
   }
 
