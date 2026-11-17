@@ -122,8 +122,10 @@ class Classifier {
         void print_classes() const {
             cout << "classes: " << endl;
             for (auto entry : posts_with_label) {
-                cout << "  " << entry.first << ", " << entry.second <<
-                " examples, log-prior = " << log_prior(entry.first) << endl;
+                cout << "  " << entry.first << ", "
+                << entry.second <<
+                " examples, log-prior = " 
+                << log_prior(entry.first) << endl;
             }
         }
         // E: prints count and likelihood of log for each label and word
@@ -132,8 +134,10 @@ class Classifier {
             for (const auto &entry : posts_with_word_and_label) {
                 const string &label = entry.first.first;
                 const string &word = entry.first.second;
-                cout << "  " << label << ": " << word << ", count = " << entry.second <<
-                ", log-likelihood = " << log_likelihood(label, word) << endl;
+                cout << "  " << label << ": " << word << 
+                ", count = " << entry.second <<
+                ", log-likelihood = " << 
+                log_likelihood(label, word) << endl;
             }
         }
 
@@ -194,9 +198,11 @@ void run(const string &train_file, const string *test_file) {
     const string train_name = train_file;
     Classifier classifier;
     train_from_file(train_name, classifier, train_only);
-    cout << "trained on " << classifier.get_num_posts() << " examples" << endl;
+    cout << "trained on " << classifier.get_num_posts() 
+    << " examples" << endl;
     if (train_only) {
-        cout << "vocabulary size = " << classifier.get_vocab_size() << endl;
+        cout << "vocabulary size = " << 
+        classifier.get_vocab_size() << endl;
     }
     cout << endl;
     if (train_only) {
