@@ -29,14 +29,15 @@ class Classifier {
 
         
         double log_prior(string label) const {
-            double lnpc = log(static_cast<double>(posts_with_label.at(label) / num_posts));
+            double lnpc = log(static_cast<double>(posts_with_label.at(label)) / num_posts);
             return lnpc;
         }
 
         double log_likelihood(string label, string word) const {
             double lnpwc;
             if (posts_with_word_and_label.find({label, word}) != posts_with_word_and_label.end()) {
-                lnpwc = log(static_cast<double>(posts_with_word_and_label.at({label, word})) / posts_with_label.at(label));
+                lnpwc = log(static_cast<double>(posts_with_word_and_label.at({label, word}))
+                 / posts_with_label.at(label));
             }
 
             else if (posts_with_word.find(word) != posts_with_word.end()) {
@@ -59,7 +60,7 @@ class Classifier {
 
             for (string w : words) {
                 ++posts_with_word[w];
-                ++posts_with_word_and_label[make_pair(label, w)];
+                ++posts_with_word_and_label[{label, w}];
             }
         }
         // E: returns the number of posts trained
@@ -72,9 +73,9 @@ class Classifier {
             return static_cast<int>(posts_with_word.size());
         }
 
-        // R: the classifer already trained on atleast once
-        // E: returns the label with the highest probability score from the logs for the content
-        // with any ties going to the first alphabetical label and stores that score in score.
+        // R: classifer trained on atleast once
+        // E: returns label with highest probability score from logs
+        // ties go to the first alphabetical label
         string predict (const string &content, double &score) const {
             set<string> words = unique_words(content);
 
@@ -89,10 +90,10 @@ class Classifier {
                 scores.push_back(total);
             }
 
-            size_t best = labels.size();
-            for (size_t i = 0; i < labels.size(); i++) {
+            int best = labels.size();
+            for (int i = 0; i < labels.size(); i++) {
                 bool is_best = true;
-                for (size_t j = 0; j < labels.size(); j++) {
+                for (int j = 0; j < labels.size(); j++) {
                     if (scores[j] > scores[i]) {
                         is_best = false;
                     }
@@ -109,7 +110,7 @@ class Classifier {
             return labels[best];
         }
 
-        // E: Prints the classes utilized as well as the prior logs.
+        // E: Prints classes utilized and previous logs.
         void print_classes() const {
             cout << "classes: " << endl;
             for (auto entry : posts_with_label) {
@@ -117,13 +118,13 @@ class Classifier {
                 " examples, log-prior = " << log_prior(entry.first) << endl;
             }
         }
-        // E: prints the count and the likelihood of log for each x = label, y = word
+        // E: prints count and likelihood of log for each label and word
         void print_parameters() const {
             cout << "classifier parameters:" << endl;
             for (const auto &entry : posts_with_word_and_label) {
                 const string &label = entry.first.first;
                 const string &word = entry.first.second;
-                cout << " " << label << ":" << word << ", count = " << entry.second <<
+                cout << " " << label << ": " << word << ", count = " << entry.second <<
                 ", log-likelihood = " << log_likelihood(label, word) << endl;
             }
         }
@@ -132,7 +133,7 @@ class Classifier {
 };
 
 // M: classifer, cout
-// E: trains the classifier on every post in the csv file
+// E: trains classifier on every post in csv file
 void train_from_file(const string & filename, Classifier & classifier, bool print_posts) {
     csvstream csvin(filename);
     map<string, string> row;
@@ -145,7 +146,7 @@ void train_from_file(const string & filename, Classifier & classifier, bool prin
     if (print_posts) {
         cout << "training data:" << endl;
     }
-    for (size_t i = 0; i < rows.size(); i++) {
+    for (int i = 0; i < rows.size(); i++) {
         const string label = rows[i]["tag"];
         const string content = rows[i]["content"];
         if (print_posts) {
@@ -168,7 +169,7 @@ void test_from_file(const string &filename, const Classifier &classifier) {
     int correct = 0;
     int total = 0;
     cout << "test data: " << endl;
-    for (size_t i = 0; i < rows.size(); i++) {
+    for (int i = 0; i < rows.size(); i++) {
         const string label = rows[i]["tag"];
         const string content = rows[i]["content"];
         double score = 0;
@@ -185,7 +186,7 @@ void test_from_file(const string &filename, const Classifier &classifier) {
 }
 
 // M: cout
-// E: runs training and also testing if asked. Throws a csvstream_exception if the file won't open
+// E: runs training and testing if asked
 void run(const string &train_file, const string *test_file) {
     const bool train_only = (test_file == nullptr);
     const string train_name = train_file;
@@ -209,25 +210,37 @@ void run(const string &train_file, const string *test_file) {
 
 int main(int argc, char *argv[]) {
     cout.precision(3);
+    // check if argument number is 2 or 3 including file name
     if (argc != 2 && argc != 3) {
         cout << "Usage: classifier.exe TRAIN_FILE [TEST_FILE]" << endl;
         return 1;
     }
 
-    const string train_file = argv[1];
-
+    //check opening file works or not
+    string filename = argv[1];
     try {
-        if (argc == 2) {
-            run(train_file, nullptr);
-        } 
-        else {
-            string test_file = argv[2];
-            run(train_file, &test_file);
-        }
-    }
-    catch (const csvstream_exception &e) {
-        cout << e.what() << endl;
+    csvstream csvin(filename);
+  } catch(const csvstream_exception &e) {
+    cout << "Error opening file: " << filename << endl;
+    return 1;
+  }
+
+    //check second file opens or not if there is one
+    if (argc == 3) {
+        string filename2 = argv[2];
+        try {
+        csvstream csvin(filename2);
+    }catch(const csvstream_exception &e) {
+        cout << "Error opening file: " << filename2 << endl;
         return 1;
     }
-    return 0;
+    run(filename, &filename2);
+  }
+
+  else {
+    //run with only one file
+    run (filename, nullptr);
+  }
+
+return 0;
 }
