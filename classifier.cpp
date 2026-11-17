@@ -37,7 +37,8 @@ class Classifier {
         }
         
         double log_prior(string label) const {
-            double lnpc = log(static_cast<double>(posts_with_label.at(label)) / num_posts);
+            double lnpc = log(static_cast<double>(posts_with_label.at(label))
+             / num_posts);
             return lnpc;
         }
 
@@ -45,7 +46,7 @@ class Classifier {
             double lnpwc;
             if (posts_with_word_and_label.find({label, word}) != posts_with_word_and_label.end()) {
                 lnpwc = log(static_cast<double>(posts_with_word_and_label.at({label, word}))
-                 / posts_with_label.at(label));
+                / posts_with_label.at(label));
             }
 
             else if (posts_with_word.find(word) != posts_with_word.end()) {
@@ -120,7 +121,7 @@ class Classifier {
 
         // E: Prints classes utilized and previous logs.
         void print_classes() const {
-            cout << "classes: " << endl;
+            cout << "classes:" << endl;
             for (auto entry : posts_with_label) {
                 cout << "  " << entry.first << ", "
                 << entry.second <<
@@ -134,7 +135,7 @@ class Classifier {
             for (const auto &entry : posts_with_word_and_label) {
                 const string &label = entry.first.first;
                 const string &word = entry.first.second;
-                cout << "  " << label << ": " << word << 
+                cout << "  " << label << ":" << word << 
                 ", count = " << entry.second <<
                 ", log-likelihood = " << 
                 log_likelihood(label, word) << endl;
@@ -175,13 +176,13 @@ void test_from_file(const string &filename, const Classifier &classifier) {
     map<string, string> row;
     int correct = 0;
     int total = 0;
-    cout << "test data: " << endl;
+    cout << "test data:" << endl;
     while (csvin >> row) {
         double score = 0;
         string predicted = classifier.predict(row["content"], score);
-        cout << " correct = " << row["tag"] << ",predicted = " <<
+        cout << " correct =  " << row["tag"] << ", predicted = " <<
          predicted << ", log-probability score = " << score << endl;
-        cout << " content = " << row["content"] << endl << endl;
+        cout << " content =  " << row["content"] << endl << endl;
         total++;
         if (predicted == row["tag"]) {
             correct++;
