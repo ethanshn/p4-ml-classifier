@@ -142,7 +142,8 @@ class Classifier {
 
 // M: classifer, cout
 // E: trains classifier on every post in csv file
-void train_from_file(const string & filename, Classifier & classifier, bool print_posts) {
+void train_from_file(const string & filename, 
+    Classifier & classifier, bool print_posts) {
     csvstream csvin(filename);
     map<string, string> row;
     if (print_posts) {
@@ -174,7 +175,8 @@ void test_from_file(const string &filename, const Classifier &classifier) {
     while (csvin >> row) {
         double score = 0;
         string predicted = classifier.predict(row["content"], score);
-        cout << " correct = " << row["tag"] << ", predicted = " << predicted << ", log-probability score = "
+        cout << " correct = " << row["tag"] << ",
+         predicted = " << predicted << ", log-probability score = "
         << score << endl;
         cout << " content = " << row["content"] << endl << endl;
         total++;
@@ -182,7 +184,8 @@ void test_from_file(const string &filename, const Classifier &classifier) {
             correct++;
         }
     }
-    cout << "performance: " << correct << " / " << total << " posts predicted correctly" << endl;
+    cout << "performance: " << correct << " / " 
+    << total << " posts predicted correctly" << endl;
 }
 
 // M: cout
