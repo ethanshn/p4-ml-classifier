@@ -44,8 +44,10 @@ class Classifier {
 
         double log_likelihood(string label, string word) const {
             double lnpwc;
-            if (posts_with_word_and_label.find({label, word}) != posts_with_word_and_label.end()) {
-                lnpwc = log(static_cast<double>(posts_with_word_and_label.at({label, word}))
+            if (posts_with_word_and_label.find({label, word}) 
+            != posts_with_word_and_label.end()) {
+                lnpwc = log(static_cast<double>
+                    (posts_with_word_and_label.at({label, word}))
                 / posts_with_label.at(label));
             }
 
