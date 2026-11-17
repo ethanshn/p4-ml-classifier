@@ -122,7 +122,7 @@ class Classifier {
         void print_classes() const {
             cout << "classes: " << endl;
             for (auto entry : posts_with_label) {
-                cout << entry.first << ", " << entry.second <<
+                cout << "  " << entry.first << ", " << entry.second <<
                 " examples, log-prior = " << log_prior(entry.first) << endl;
             }
         }
@@ -132,7 +132,7 @@ class Classifier {
             for (const auto &entry : posts_with_word_and_label) {
                 const string &label = entry.first.first;
                 const string &word = entry.first.second;
-                cout << label << ": " << word << ", count = " << entry.second <<
+                cout << "  " << label << ": " << word << ", count = " << entry.second <<
                 ", log-likelihood = " << log_likelihood(label, word) << endl;
             }
         }
@@ -157,7 +157,7 @@ void train_from_file(const string & filename,
 
     for (int i = 0; i < rows.size(); i++) {
         if (print_posts) {
-            cout << "label = " << rows[i]["tag"]
+            cout << "  label = " << rows[i]["tag"]
             << ", content = " << rows[i]["content"] << endl;
         }
         classifier.train(rows[i]["tag"], rows[i]["content"]);
