@@ -180,9 +180,9 @@ void test_from_file(const string &filename, const Classifier &classifier) {
     while (csvin >> row) {
         double score = 0;
         string predicted = classifier.predict(row["content"], score);
-        cout << "  correct =  " << row["tag"] << ", predicted = " <<
+        cout << "  correct = " << row["tag"] << ", predicted = " <<
          predicted << ", log-probability score = " << score << endl;
-        cout << " content =  " << row["content"] << endl << endl;
+        cout << "  content = " << row["content"] << endl << endl;
         total++;
         if (predicted == row["tag"]) {
             correct++;
